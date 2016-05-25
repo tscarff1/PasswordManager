@@ -26,61 +26,32 @@ public class Manager {
 	private KeyGenerator keygen;
 	private SecretKey key;
 	private Cipher cipher;
-	
+	private AES aes;
 	private File file = null;
 	private MainFrame mf;
 	private final String FILENAME = "PasswordManager" + File.separator + "pwdman.pd";
 	private final String WINDOWFILE = System.getenv("APPDATA") + File.separator + FILENAME;
 	private final String MACFILE = System.getProperty("user.home") + File.separator + "Library" + File.separator + "Application Support"
-            + File.separator + FILENAME;
+			+ File.separator + FILENAME;
 	private final String UNIXFILE = "/var" + File.separator + "lib" + File.separator + FILENAME;
 	private FileOutputStream output;
 	private FileInputStream input;
-	
+
 	private String[] accounts, users, passwords;
 	private static final String DATADELIMITER = "[{??}]";
-	
+
 	private boolean isInit = false;
 	private boolean fileCreated = false;
 	private boolean fileExists = false;
-	
+
 	public Manager(byte[] p){
-		try {
-			//Create a key based on the password
-			SecureRandom rand = new SecureRandom();
-			rand.setSeed(p);
-			keygen = KeyGenerator.getInstance("AES");
-			keygen.init(128, rand);
-			
-			key = keygen.generateKey();
-			cipher = Cipher.getInstance("AES");
-			cipher.init(Cipher.ENCRYPT_MODE, key);
-			p = cipher.doFinal(p);
-			pass = p;
-			
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		pass = p;
-		
+		aes = new AES(p);
+		pass = aes.encrypt(p);
+		p = null; // Probably not needed, but prevents the plaintext password from exisitng any longer than needed
 		createFile();
 		mf = new MainFrame(this);
 	}
-	
+
 	public boolean isInit(){
 		return isInit;
 	}
@@ -88,23 +59,13 @@ public class Manager {
 	public boolean fileCreated(){
 		return fileCreated;
 	}
-	
+
+	//Compares the encrypted given password to the encrypted saved password
 	public boolean verifyPassword(byte[] test){
 		boolean res = false;
-		try {
-			cipher.init(Cipher.ENCRYPT_MODE, key);
-			test = cipher.doFinal(test);
+			test = aes.encrypt(test);
 			if(Arrays.equals(test, pass))
 				res = true;
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return res;
 	}
 
@@ -163,18 +124,18 @@ public class Manager {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void createFile(){
 		Logger.info("Creating file");
 		if(OSValidator.isWindows()){
 			Logger.info("OS is Windows");
-				file = new File(WINDOWFILE);
-				file.getParentFile().mkdirs();
+			file = new File(WINDOWFILE);
+			file.getParentFile().mkdirs();
 		}
 		if(OSValidator.isMac()){
-			 file = new File(MACFILE);
+			file = new File(MACFILE);
 		}
-		
+
 		if(OSValidator.isUnix()){
 			file = new File(UNIXFILE);
 		}
@@ -182,7 +143,7 @@ public class Manager {
 		fileExists = file.exists();
 		Logger.info("Created file at " + file.getAbsolutePath());
 	}
-	
+
 	public void writeToFile(){
 		setStreamForWrite();
 		try {
@@ -195,7 +156,7 @@ public class Manager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	private String getDataFromFile(){
@@ -228,47 +189,22 @@ public class Manager {
 			}
 
 			//if(bytesRead >= 0){
-				Logger.info(data);
+			Logger.info(data);
 			//}
-			return decrypt(data);
+			return new String(aes.decrypt(data));
 		}
 		return null;
 	}
 
-	private String decrypt(byte[] e){
-		try {
-			cipher = Cipher.getInstance("AES");
-			cipher.init(Cipher.DECRYPT_MODE, key);
-			byte[] d = cipher.doFinal(e);
-			return new String(d);
-		} catch (NoSuchAlgorithmException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (NoSuchPaddingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (InvalidKeyException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IllegalBlockSizeException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (BadPaddingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		return null;
-	}
-	
-	
+
 	public void startFrame(JFrame frame){
 		frame.setVisible(true);
 	}
-	
+
 	public void startMainFrame(){
 		startFrame(mf);
 	}
-	
+
 	private String getInfoString(){
 		String info = "";
 		for(int i = 0; i < accounts.length; i++){
@@ -285,37 +221,17 @@ public class Manager {
 		}
 		return info;
 	}
-	
+
 	private byte[] getEncryptedInfoString(){
-		try {
-			byte[] einfo = null;
-			String info = getInfoString();
-			cipher = Cipher.getInstance("AES");
-			cipher.init(Cipher.ENCRYPT_MODE, key);
-			einfo = cipher.doFinal(info.getBytes());
-			Logger.info("Plain: Text" + info);
-			Logger.info("Encrypted: " + einfo);
-			Logger.info("Decrypted: " + decrypt(einfo));
-			return einfo;
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+		byte[] einfo = null;
+		String info = getInfoString();
+		einfo = aes.encrypt(info.getBytes());
+		Logger.info("Plain: Text" + info);
+		Logger.info("Encrypted: " + einfo);
+		Logger.info("Decrypted: " + aes.decrypt(einfo));
+		return einfo;
 	}
-	
+
 	public void fillTable(JTable table){
 		String info = getDataFromFile();
 		Logger.info("Filling table");
@@ -330,11 +246,11 @@ public class Manager {
 		}
 		isInit = true;
 	}
-	
+
 	public void setAccounts(String[] a, String[] u, String[] p){
 		accounts = a;
 		users = u;
 		passwords = p;
 	}
-	
+
 }
