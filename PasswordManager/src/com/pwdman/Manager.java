@@ -202,6 +202,7 @@ public class Manager {
 	}
 
 	public void startMainFrame(){
+		fillTable(mf.getTable());
 		startFrame(mf);
 	}
 

@@ -71,7 +71,7 @@ public class MainFrame extends JFrame implements TableModelListener{
 		table.setFillsViewportHeight(true);
 		
 		this.add(scrollPane);
-		man.fillTable(table);
+		
 		//man.writeToFile();
 	}
 	
@@ -99,6 +99,10 @@ public class MainFrame extends JFrame implements TableModelListener{
 			passwords[i] = (String) table.getModel().getValueAt(i, 2);
 		}
 		return passwords;
+	}
+	
+	public JTable getTable(){
+		return table;
 	}
 
 	@Override
