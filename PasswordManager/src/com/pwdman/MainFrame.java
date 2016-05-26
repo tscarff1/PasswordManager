@@ -1,6 +1,8 @@
 package com.pwdman;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -10,22 +12,23 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.WindowConstants;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
-public class MainFrame extends JFrame implements TableModelListener{
+public class MainFrame extends JFrame implements TableModelListener, ActionListener{
 	private Manager man;
 	private JMenuBar menuBar;
 	private JMenu menu, subMenu;
-	private JMenuItem menuItem;
+	private JMenuItem addItem, changeItem;
 	
 	private JTableHeader header;
 	private JScrollPane scrollPane;
 	String[] headers = {"Account", "Username", "Password", "Delete"};
-	private String[][] data;
 	private DefaultTableModel dm;
 	private JTable table;
 	private final int NUMCOLS = 4;
@@ -40,16 +43,18 @@ public class MainFrame extends JFrame implements TableModelListener{
 		
 		menu = new JMenu("File");
 		menuBar = new JMenuBar();
+		
+		
+		addItem = new JMenuItem("Add Account");
+		addItem.addActionListener(this);
+		menu.add(addItem);
+		
+		changeItem = new JMenuItem("Change Admin Password");
+		changeItem.addActionListener(this);
+		menu.add(changeItem);
+		
 		menuBar.add(menu);
-		
-		menuItem = new JMenuItem("Add Account");
-		menu.add(menuItem);
-		
-		menuItem = new JMenuItem("Change Admin Password");
-		menu.add(menuItem);
-		
 		this.setJMenuBar(menuBar);
-		
 		dm = new DefaultTableModel(10,4);
 		table = new JTable(dm);
 		table.setRowHeight(25);
@@ -112,5 +117,15 @@ public class MainFrame extends JFrame implements TableModelListener{
 			man.writeToFile();
 		}
 		
+	}
+
+
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Logger.info(e.getActionCommand());
+		if(e.getSource() == addItem){
+			new AddAccountFrame(man);
+		}
 	}
 }

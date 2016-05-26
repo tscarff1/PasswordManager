@@ -5,6 +5,9 @@ public class Logger {
 	public Logger(){
 		
 	}
+	public static void debug(String debug){
+		System.out.println("[DEBUG]" + debug);
+	}
 	
 	public static void info(String info){
 		System.out.println("[INFO]" + info);
