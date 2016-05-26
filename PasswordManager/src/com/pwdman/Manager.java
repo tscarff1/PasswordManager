@@ -148,8 +148,8 @@ public class Manager {
 		setStreamForWrite();
 		try {
 			byte[] e = aes.encrypt(getInfoString().getBytes());
-			Logger.info("Writing to file: " + e);
-			System.out.println(e[0]);
+			Logger.info("Writing to file: ");
+			Logger.debug(e);
 			output.write(e);
 			output.close();
 		} catch (IOException e) {
@@ -230,9 +230,17 @@ public class Manager {
 			String[] data = info.split(Pattern.quote("[{??}]"));
 			int rows = data.length/3;
 			for(int r = 0; r < rows; r++){
-				for(int c = 0; c < 3; c++){
-					table.getModel().setValueAt(data[3*r + c], r, c);
-				}
+				String acc = data[3*r+0];
+				if(acc.equals("null"))
+					acc = "";
+				String user = data[3*r + 1];
+				if(user.equals("null"))
+						user = "";
+				char[] pass = data[3*r + 2].toCharArray();
+				if(Arrays.equals(pass, "null".toCharArray()))
+					pass = "".toCharArray();
+				if(!acc.equals("") && !user.equals("") && !Arrays.equals(pass, "".toCharArray()))
+					addAccount(acc, user, pass);
 			}
 		}
 		isInit = true;

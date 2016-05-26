@@ -9,6 +9,14 @@ public class Logger {
 		System.out.println("[DEBUG]" + debug);
 	}
 	
+	public static void debug(byte[] debug){
+		System.out.print("[DEBUG] ");
+		for(int i = 0; i < debug.length; i++){
+			System.out.print(debug[i]);
+		}
+		System.out.println();
+	}
+	
 	public static void info(String info){
 		System.out.println("[INFO]" + info);
 	}

@@ -55,7 +55,7 @@ public class MainFrame extends JFrame implements TableModelListener, ActionListe
 		
 		menuBar.add(menu);
 		this.setJMenuBar(menuBar);
-		dm = new DefaultTableModel(10,4);
+		dm = new DefaultTableModel(0,4);
 		table = new JTable(dm);
 		table.setRowHeight(25);
 		for(int i = 0; i < NUMCOLS; i++){
