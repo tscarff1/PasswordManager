@@ -61,11 +61,14 @@ public class AddAccountFrame extends JFrame implements ActionListener{
 		buttonPanel.add(submit);
 		buttonPanel.add(cancel);
 		
+		status = new JLabel("");
+		
 		this.add(accountPanel);
 		this.add(userPanel);
 		this.add(passwordPanel);
 		this.add(confirmPanel);
 		this.add(buttonPanel);
+		this.add(status);
 		this.pack();
 		this.setResizable(false);
 		this.setVisible(true);
@@ -75,7 +78,7 @@ public class AddAccountFrame extends JFrame implements ActionListener{
 	public void submitAccount(){
 		String error = verifyAccount();
 		if(error.equals("")){
-			addAccount();
+			man.addAccount(accountField.getText(), userField.getText(), passwordField.getPassword());
 		}
 		else{
 			status.setText("");
@@ -100,21 +103,12 @@ public class AddAccountFrame extends JFrame implements ActionListener{
 		return error;
 	}
 	
-	//Submit the new account
-	public void addAccount(){
-			//man.addAccount(accountField.getText(), userField.getText(), passwordField.getPassword());
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == submit){
-			addAccount();
+			submitAccount();
 		}
-		else{
-			//close window
-			this.setVisible(false);
-			this.dispose();
-		}
-		
+		this.setVisible(false);
+		this.dispose();
 	}
 }

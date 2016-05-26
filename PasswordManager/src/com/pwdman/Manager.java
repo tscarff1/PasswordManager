@@ -147,7 +147,7 @@ public class Manager {
 	public void writeToFile(){
 		setStreamForWrite();
 		try {
-			byte[] e = getEncryptedInfoString();
+			byte[] e = aes.encrypt(getInfoString().getBytes());
 			Logger.info("Writing to file: " + e);
 			System.out.println(e[0]);
 			output.write(e);
@@ -223,16 +223,6 @@ public class Manager {
 		return info;
 	}
 
-	private byte[] getEncryptedInfoString(){
-		byte[] einfo = null;
-		String info = getInfoString();
-		einfo = aes.encrypt(info.getBytes());
-		Logger.info("Plain: Text" + info);
-		Logger.info("Encrypted: " + einfo);
-		Logger.info("Decrypted: " + aes.decrypt(einfo));
-		return einfo;
-	}
-
 	public void fillTable(JTable table){
 		String info = getDataFromFile();
 		Logger.info("Filling table");
@@ -248,6 +238,10 @@ public class Manager {
 		isInit = true;
 	}
 
+	public void addAccount(String account, String user, char[] password){
+		mf.addAccount(account, user, password);
+	}
+	
 	public void setAccounts(String[] a, String[] u, String[] p){
 		accounts = a;
 		users = u;

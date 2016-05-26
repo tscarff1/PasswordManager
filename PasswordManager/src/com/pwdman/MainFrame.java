@@ -110,6 +110,11 @@ public class MainFrame extends JFrame implements TableModelListener, ActionListe
 		return table;
 	}
 
+	public void addAccount(String account, String user, char[] password){
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		model.addRow(new Object[]{account, user, new String(password)});
+	}
+	
 	@Override
 	public void tableChanged(TableModelEvent arg0) {
 		if(man.isInit() && man.fileCreated()){
