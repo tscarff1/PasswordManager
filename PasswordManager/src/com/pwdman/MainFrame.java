@@ -130,6 +130,7 @@ public class MainFrame extends JFrame implements TableModelListener, ActionListe
 	public void actionPerformed(ActionEvent e) {
 		Logger.info(e.getActionCommand());
 		if(e.getSource() == addItem){
+			this.setEnabled(false);
 			new AddAccountFrame(man);
 		}
 	}

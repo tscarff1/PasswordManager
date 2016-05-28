@@ -19,7 +19,7 @@ public class AddAccountFrame extends JFrame implements ActionListener{
 	private JPasswordField passwordField, confirmField;
 	private JButton submit, cancel;
 	private JLabel accountLabel, userLabel, passwordLabel, confirmLabel, status;
-	private JPanel accountPanel, userPanel, passwordPanel, confirmPanel, buttonPanel;
+	private JPanel accountPanel, userPanel, passwordPanel, confirmPanel, buttonPanel, statusPanel;
 	private Manager man;
 	
 	public AddAccountFrame(Manager man){
@@ -61,54 +61,65 @@ public class AddAccountFrame extends JFrame implements ActionListener{
 		buttonPanel.add(submit);
 		buttonPanel.add(cancel);
 		
-		status = new JLabel("");
+		statusPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		status = new JLabel("<html><div style='text-align: center;'><br/><br/><br/><br/></html>");
+		statusPanel.add(status);
 		
 		this.add(accountPanel);
 		this.add(userPanel);
 		this.add(passwordPanel);
 		this.add(confirmPanel);
 		this.add(buttonPanel);
-		this.add(status);
+		this.add(statusPanel);
 		this.pack();
 		this.setResizable(false);
 		this.setVisible(true);
 	}
 	
 	//verify and add acount
-	public void submitAccount(){
+	public boolean submitAccount(){
 		String error = verifyAccount();
 		if(error.equals("")){
+			Logger.info("Adding new account");
 			man.addAccount(accountField.getText(), userField.getText(), passwordField.getPassword());
+			return true;
 		}
 		else{
-			status.setText("");
+			status.setText(error);
+			return false;
 		}
 	}
 	
 	//Check for any errors in the new account
 	public String verifyAccount(){
-		String error = "";
+		String error = "<html><div style='text-align: center;'>";
 		if(accountField.getText().isEmpty()){
-			error += "Account name is empty ";
+			error += "Account name is empty<br/>";
 		}
 		if(userField.getText().isEmpty()){
-			error+="Username is empty ";
+			error+="Username is empty<br/>";
 		}
 		if(passwordField.getPassword().length == 0){
-			error += "Password is empty ";
+			error += "Password is empty<br/>";
 		}
 		if(!Arrays.equals(passwordField.getPassword(), confirmField.getPassword())){
 			error += "Passwords do not match!";
 		}
+		error+="</html>";
+		Logger.info("New account verification resulted in the following errors: " + error);
 		return error;
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		boolean shouldClose = true;
 		if(e.getSource() == submit){
-			submitAccount();
+			shouldClose = submitAccount();
 		}
-		this.setVisible(false);
-		this.dispose();
+		if(shouldClose){
+			man.enableMainFrame();
+			this.setVisible(false);
+			this.dispose();
+		}
 	}
 }

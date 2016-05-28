@@ -129,6 +129,10 @@ public class Manager {
 		mf.addAccount(account, user, password);
 	}
 	
+	public void enableMainFrame(){
+		mf.setEnabled(true);
+	}
+	
 	public void setAccounts(String[] a, String[] u, String[] p){
 		accounts = a;
 		users = u;
