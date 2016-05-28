@@ -29,26 +29,21 @@ public class Manager {
 	private AES aes;
 	private File file = null;
 	private MainFrame mf;
-	private final String FILENAME = "PasswordManager" + File.separator + "pwdman.pd";
-	private final String WINDOWFILE = System.getenv("APPDATA") + File.separator + FILENAME;
-	private final String MACFILE = System.getProperty("user.home") + File.separator + "Library" + File.separator + "Application Support"
-			+ File.separator + FILENAME;
-	private final String UNIXFILE = "/var" + File.separator + "lib" + File.separator + FILENAME;
-	private FileOutputStream output;
-	private FileInputStream input;
+	
 
 	private String[] accounts, users, passwords;
 	private static final String DATADELIMITER = "[{??}]";
 
 	private boolean isInit = false;
-	private boolean fileCreated = false;
-	private boolean fileExists = false;
 
+	private IO accountsIO;
+	
 	public Manager(byte[] p){
 		aes = new AES(p);
 		pass = aes.encrypt(p);
-		p = null; // Probably not needed, but prevents the plaintext password from exisitng any longer than needed
-		createFile();
+		p =new byte[12]; // Probably not needed, but prevents the plaintext password from exisitng any longer than needed
+		accountsIO = new IO("pwdman.pd");
+		accountsIO.createFile();
 		mf = new MainFrame(this);
 	}
 
@@ -56,9 +51,6 @@ public class Manager {
 		return isInit;
 	}
 
-	public boolean fileCreated(){
-		return fileCreated;
-	}
 
 	//Compares the encrypted given password to the encrypted saved password
 	public boolean verifyPassword(byte[] test){
@@ -69,131 +61,14 @@ public class Manager {
 		return res;
 	}
 
-	private void setStreamForWrite(){
-		String fileStr = "error";
-
-		if(OSValidator.isWindows()){
-			fileStr = WINDOWFILE;
-		}
-		if(OSValidator.isMac()){
-			fileStr = MACFILE;
-		}
-
-		if(OSValidator.isUnix()){
-			fileStr = UNIXFILE;
-		}
-		try {	
-			if(!fileStr.equals("error")){
-				output = new FileOutputStream(fileStr);
-			}
-			else{
-				//Should replace with logging function
-				Logger.error("Operating System not found.");
-			}
-		} 
-		catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	private void setStreamForRead(){
-		String fileStr = "error";
-
-		if(OSValidator.isWindows()){
-			fileStr = WINDOWFILE;
-		}
-		if(OSValidator.isMac()){
-			fileStr = MACFILE;
-		}
-
-		if(OSValidator.isUnix()){
-			fileStr = UNIXFILE;
-		}
-		try {	
-			if(!fileStr.equals("error") && file.exists()){
-				input = new FileInputStream(fileStr);
-			}
-			else{
-				//Should replace with logging function
-				Logger.error("OS not found");
-			}
-		} 
-		catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	public void createFile(){
-		Logger.info("Creating file");
-		if(OSValidator.isWindows()){
-			Logger.info("OS is Windows");
-			file = new File(WINDOWFILE);
-			file.getParentFile().mkdirs();
-		}
-		if(OSValidator.isMac()){
-			file = new File(MACFILE);
-		}
-
-		if(OSValidator.isUnix()){
-			file = new File(UNIXFILE);
-		}
-		fileCreated = true;
-		fileExists = file.exists();
-		Logger.info("Created file at " + file.getAbsolutePath());
-	}
-
-	public void writeToFile(){
-		setStreamForWrite();
-		try {
-			byte[] e = aes.encrypt(getInfoString().getBytes());
-			Logger.info("Writing to file: ");
-			Logger.debug(e);
-			output.write(e);
-			output.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
 
 	private String getDataFromFile(){
-		if(file.exists()){
-			byte[] data = new byte[16];
-			byte[] bytes = new byte[1];
-			int bytesRead = 0;
-			int totalBytesRead = 0;
-			setStreamForRead();
-			try {
-				while((bytesRead =input.read(bytes)) > 0){
-					totalBytesRead += bytesRead;
-					for(int i = 0; i < bytesRead; i++){
-						if(totalBytesRead > data.length){
-							data = Arrays.copyOf(data, data.length + 16);
-						}
-						data[totalBytesRead-1] = bytes[i];
-					}
-				}
-				if(bytesRead < 0){
-					Logger.warn("Empty file!");
-				}
-				Logger.info("File contents");
-				Logger.info(data);
-				input.close();
-
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			//if(bytesRead >= 0){
-			Logger.info(data);
-			//}
+		byte[] data = accountsIO.readFromFile();
+		if(data == null)
+			return null;
+		else{
 			return new String(aes.decrypt(data));
 		}
-		return null;
 	}
 
 
@@ -204,6 +79,10 @@ public class Manager {
 	public void startMainFrame(){
 		fillTable(mf.getTable());
 		startFrame(mf);
+	}
+	
+	public void writeAccountsToFile(){
+		accountsIO.writeToFile(aes.encrypt(getInfoString().getBytes()));
 	}
 
 	private String getInfoString(){

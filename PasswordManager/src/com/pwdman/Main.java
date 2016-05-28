@@ -16,7 +16,8 @@ public class Main {
 		try {
 			byte[] password = "!Deoxys#386!".getBytes("UTF8");
 			Manager man = new Manager(password);
-			while(!man.fileCreated());
+			password = new byte[10];
+			//while(!man.fileCreated());
 			StartFrame startFrame = new StartFrame(man);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
