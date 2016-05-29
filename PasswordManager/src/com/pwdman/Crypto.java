@@ -11,14 +11,17 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
-public class AES {
+import org.mindrot.BCrypt;
+
+public class Crypto {
 	private KeyGenerator keygen;
 	private SecretKey key;
 	private Cipher cipher;
 	
-	public AES(byte[] pwd){
+	public Crypto(byte[] pwd){
 		try {
-			Logger.info("Creating AES class");
+			testBCrypt();
+			Logger.info("Creating Crypto class");
 		//Create a key based on the password
 		SecureRandom rand = new SecureRandom();
 		rand.setSeed(pwd);
@@ -37,6 +40,29 @@ public class AES {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public String hashPassword(String pw){
+		String salt = BCrypt.gensalt(12);
+		return BCrypt.hashpw(pw, salt);
+	}
+	
+	public boolean checkPassword(String test, String hashed){
+		return BCrypt.checkpw(test, hashed);
+	}
+	
+	private void testBCrypt(){
+		String salt = BCrypt.gensalt(12);
+		Logger.debug("Salt: " + salt);
+		String hashed = BCrypt.hashpw("T3stP@ssw0rd", salt);
+		salt = BCrypt.gensalt(12);
+		if(BCrypt.checkpw("T3stP@ssw0rd",hashed)){
+			Logger.debug("Passwords match");
+		}
+		else{
+			Logger.debug("Not match");
+		}
+		
 	}
 	
 	//Encrypt a given byte array. Returns null if it fails

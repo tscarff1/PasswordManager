@@ -26,7 +26,7 @@ public class Manager {
 	private KeyGenerator keygen;
 	private SecretKey key;
 	private Cipher cipher;
-	private AES aes;
+	private Crypto aes;
 	private File file = null;
 	private MainFrame mf;
 	
@@ -39,7 +39,7 @@ public class Manager {
 	private IO accountsIO;
 	
 	public Manager(byte[] p){
-		aes = new AES(p);
+		aes = new Crypto(p);
 		pass = aes.encrypt(p);
 		p =new byte[12]; // Probably not needed, but prevents the plaintext password from exisitng any longer than needed
 		accountsIO = new IO("pwdman.pd");
