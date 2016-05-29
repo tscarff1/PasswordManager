@@ -19,7 +19,7 @@ public class IO {
 	private FileOutputStream output;
 	private FileInputStream input;
 	
-	File file;
+	private File file;
 	public boolean fileCreated;
 	
 	public IO(String filename){
@@ -28,9 +28,10 @@ public class IO {
 		MACFILE = System.getProperty("user.home") + File.separator + "Library" + File.separator + "Application Support"
 				+ File.separator + FILENAME;
 		UNIXFILE = "/var" + File.separator + "lib" + File.separator + FILENAME;
+		createFile();
 	}
 	
-	public void setStreamForWrite(){
+	private void setStreamForWrite(){
 		String fileStr = "error";
 
 		if(OSValidator.isWindows()){
@@ -71,7 +72,7 @@ public class IO {
 		}
 	}
 
-	public void setStreamForRead(){
+	private void setStreamForRead(){
 		String fileStr = "error";
 
 		if(OSValidator.isWindows()){
@@ -137,7 +138,7 @@ public class IO {
 		return null;
 	}
 	
-	public void createFile(){
+	private void createFile(){
 		Logger.info("Creating file");
 		if(OSValidator.isWindows()){
 			Logger.info("OS is Windows");

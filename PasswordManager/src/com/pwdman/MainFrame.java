@@ -117,11 +117,8 @@ public class MainFrame extends JFrame implements TableModelListener, ActionListe
 	
 	@Override
 	public void tableChanged(TableModelEvent arg0) {
-		if(man.isInit()){
 			man.setAccounts(getAccounts(), getUsers(), getPasswords());
 			man.writeAccountsToFile();
-		}
-		
 	}
 
 

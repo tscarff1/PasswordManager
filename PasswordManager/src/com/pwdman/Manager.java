@@ -1,73 +1,87 @@
 package com.pwdman;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Vector;
 import java.util.regex.Pattern;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 import javax.swing.JFrame;
 import javax.swing.JTable;
 
+/*
+ * This should handle as much of the program's logic as possible. Other classes will serve
+ * as helpers, but this class will call those methods.
+ */
+
 public class Manager {
 	private byte[] pass;
-	private KeyGenerator keygen;
-	private SecretKey key;
-	private Cipher cipher;
-	private Crypto aes;
-	private File file = null;
+	private Crypto crypto;
 	private MainFrame mf;
 	
 
 	private String[] accounts, users, passwords;
 	private static final String DATADELIMITER = "[{??}]";
 
-	private boolean isInit = false;
-
-	private IO accountsIO;
+	private IO accountsIO, passwordIO;
 	
-	public Manager(byte[] p){
-		aes = new Crypto(p);
-		pass = aes.encrypt(p);
-		p =new byte[12]; // Probably not needed, but prevents the plaintext password from exisitng any longer than needed
+	public Manager(){
+		//Start off by initializing two instances of the IO class
+		// The first will store information on the accounts, the second will store the hashed password
 		accountsIO = new IO("pwdman.pd");
-		accountsIO.createFile();
+		passwordIO = new IO("pwdman.cfg");
+		//Check to see if a file exists which contains the hashed password.
+		//This will see if the program has been run before.
+		if(!passwordIO.fileExists()){
+			//If the file doesn't exist, load the NewPasswordFrame. This will allow us
+			//to create a save (hashed) an admin password
+			Logger.debug("No configuration file found.");
+			new NewPasswordFrame(this);
+		}
+		else{
+			//If the file does exist, load the hashed password
+			//Initialize a startframe so that we can have the user enter a password to see
+			//if it matches the admin password
+			Logger.debug("Configuration file found");
+			pass = passwordIO.readFromFile();
+			new StartFrame(this);
+		}
+		//Create a MainFrame, won't be shown until a password is set or verified
 		mf = new MainFrame(this);
 	}
 
-	public boolean isInit(){
-		return isInit;
+	//Hash the new admin password and write it to a configuration file.
+	//Called by NewPasswordFrame
+	public void init(char[] p){
+		Logger.info("Configuring program");
+		//We use the plaintext password as the basis for encoding that account data
+		//Honestly I should probably change that to use the hashed password
+		crypto = new Crypto(new String(p).getBytes());
+		pass = Crypto.hashPassword(new String(p)).getBytes();
+		passwordIO.writeToFile(pass);
+		
+		p =new char[12]; // Probably not needed, but prevents the plaintext password from exisitng any longer than needed
+		startMainFrame();
 	}
-
-
-	//Compares the encrypted given password to the encrypted saved password
-	public boolean verifyPassword(byte[] test){
-		boolean res = false;
-			test = aes.encrypt(test);
-			if(Arrays.equals(test, pass))
-				res = true;
+	
+	
+	//Called by startframe
+	//returns whether the password given matches the saved hashed password
+	//If successful, it also initializes crypto and starts the mainframe
+	public boolean attemptLogin(byte[] test){
+		boolean res = Crypto.checkPassword(new String(test), new String(pass));
+		if(res){
+			crypto = new Crypto(test);
+			startMainFrame();
+		}
 		return res;
 	}
 
-
+	//Specifically, returns the decrypted data from the accounts file,
+	//or returns null if no file is found
 	private String getDataFromFile(){
 		byte[] data = accountsIO.readFromFile();
 		if(data == null)
 			return null;
 		else{
-			return new String(aes.decrypt(data));
+			return new String(crypto.decrypt(data));
 		}
 	}
 
@@ -82,9 +96,11 @@ public class Manager {
 	}
 	
 	public void writeAccountsToFile(){
-		accountsIO.writeToFile(aes.encrypt(getInfoString().getBytes()));
+		accountsIO.writeToFile(crypto.encrypt(getInfoString().getBytes()));
 	}
 
+	//Get a String representation of the data in the table
+	//DATADELIMITER is a string i chose to separate data that I hope will never be in the data itself
 	private String getInfoString(){
 		String info = "";
 		for(int i = 0; i < accounts.length; i++){
@@ -105,24 +121,34 @@ public class Manager {
 	public void fillTable(JTable table){
 		String info = getDataFromFile();
 		Logger.info("Filling table");
+		//Start by checking to make sure we actually got data from the file
 		if(info != null){
-			String[] data = info.split(Pattern.quote("[{??}]"));
+			//Get a string array of the data by splitting at each instance of the DATADELIMITER
+			String[] data = info.split(Pattern.quote(DATADELIMITER));
+			
+			//Since we have three parts to each row, the number of rows is the number of
+			//elements in total divided by 3
 			int rows = data.length/3;
+			
 			for(int r = 0; r < rows; r++){
+				//for every set of the three...
+				//First is the account
 				String acc = data[3*r+0];
 				if(acc.equals("null"))
 					acc = "";
+				//Second is the username
 				String user = data[3*r + 1];
 				if(user.equals("null"))
 						user = "";
+				//third is the password
 				char[] pass = data[3*r + 2].toCharArray();
 				if(Arrays.equals(pass, "null".toCharArray()))
 					pass = "".toCharArray();
 				if(!acc.equals("") && !user.equals("") && !Arrays.equals(pass, "".toCharArray()))
+					//makes a call to MainFrame to add a row to the table
 					addAccount(acc, user, pass);
 			}
 		}
-		isInit = true;
 	}
 
 	public void addAccount(String account, String user, char[] password){

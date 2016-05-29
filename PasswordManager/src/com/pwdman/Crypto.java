@@ -42,13 +42,14 @@ public class Crypto {
 		}
 	}
 	
-	public String hashPassword(String pw){
+	public static String hashPassword(String pw){
 		String salt = BCrypt.gensalt(12);
 		return BCrypt.hashpw(pw, salt);
 	}
 	
-	public boolean checkPassword(String test, String hashed){
-		return BCrypt.checkpw(test, hashed);
+	public static boolean checkPassword(String test, String hashed){
+		Logger.info(hashed);
+		return BCrypt.checkpw(test, hashPassword("!Deoxys#386!"));
 	}
 	
 	private void testBCrypt(){

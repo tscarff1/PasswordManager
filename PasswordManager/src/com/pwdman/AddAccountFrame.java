@@ -79,7 +79,7 @@ public class AddAccountFrame extends JFrame implements ActionListener{
 	//verify and add acount
 	public boolean submitAccount(){
 		String error = verifyAccount();
-		if(error.equals("")){
+		if(error.equals("<html><div style='text-align: center;'></html>")){
 			Logger.info("Adding new account");
 			man.addAccount(accountField.getText(), userField.getText(), passwordField.getPassword());
 			return true;

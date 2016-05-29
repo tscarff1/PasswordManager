@@ -61,10 +61,9 @@ public class StartFrame extends JFrame implements ActionListener{
 		public void actionPerformed(ActionEvent e) {
 			JButton source =(JButton) e.getSource();
 			if(source == startBut){
-				if(man.verifyPassword(new String(passwordField.getPassword()).getBytes())){
+				if(man.attemptLogin(new String(passwordField.getPassword()).getBytes())){
 					statusLabel.setText("Correct Password");
 					this.dispose();
-					man.startMainFrame();
 				}
 				else{
 					statusLabel.setText("Incorrect password");
