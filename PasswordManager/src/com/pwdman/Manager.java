@@ -159,6 +159,11 @@ public class Manager {
 		mf.setEnabled(true);
 	}
 	
+	public void deleteRow(int row){
+		mf.deleteRow(row);
+		enableMainFrame();
+	}
+	
 	public void setAccounts(String[] a, String[] u, String[] p){
 		accounts = a;
 		users = u;
