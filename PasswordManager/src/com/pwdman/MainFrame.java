@@ -2,6 +2,9 @@ package com.pwdman;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -12,7 +15,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
@@ -29,7 +31,7 @@ public class MainFrame extends JFrame implements TableModelListener, ActionListe
 	private Manager man;
 	private JMenuBar menuBar;
 	private JMenu menu, subMenu;
-	private JMenuItem addItem, changeItem;
+	private JMenuItem addItem, copyItem;
 	
 	private JTableHeader header;
 	private JScrollPane scrollPane;
@@ -53,8 +55,14 @@ public class MainFrame extends JFrame implements TableModelListener, ActionListe
 		addItem = new JMenuItem("Add Account");
 		addItem.addActionListener(this);
 		menu.add(addItem);
-		
 		menuBar.add(menu);
+		
+		menu = new JMenu("Edit");
+		copyItem = new JMenuItem("Copy Password");
+		copyItem.addActionListener(this);
+		menu.add(copyItem);
+		menuBar.add(menu);
+		
 		this.setJMenuBar(menuBar);
 		dm = new DefaultTableModel(0,4);
 		table = new JTable(dm);
@@ -138,6 +146,20 @@ public class MainFrame extends JFrame implements TableModelListener, ActionListe
 		if(e.getSource() == addItem){
 			this.setEnabled(false);
 			new AddAccountFrame(man);
+		}
+		else if(e.getSource() == copyItem){
+			int row = table.getSelectedRow();
+			
+			if(row != -1){
+				Logger.info("Copying password from row " + row);
+				String password = (String) table.getValueAt(row, 2);
+				StringSelection selection = new StringSelection(password);
+				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+				clipboard.setContents(selection, selection);
+			}
+			else{
+				Logger.warn("Cannot copy! No row selected!");
+			}
 		}
 	}
 	

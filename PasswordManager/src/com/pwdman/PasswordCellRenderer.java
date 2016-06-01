@@ -7,7 +7,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 class PasswordCellRenderer extends DefaultTableCellRenderer {
 
-    private static final String ASTERISKS = "************************";
 
     @Override
     public Component getTableCellRendererComponent(JTable arg0, Object arg1, boolean arg2, boolean arg3, int arg4, int arg5) {
@@ -22,14 +21,11 @@ class PasswordCellRenderer extends DefaultTableCellRenderer {
     }
 
     private String asterisks(int length) {
-        if (length > ASTERISKS.length()) {
-            StringBuilder sb = new StringBuilder(length);
-            for (int i = 0; i < length; i++) {
-                sb.append('*');
-            }
-            return sb.toString();
-        } else {
-            return ASTERISKS.substring(0, length);
-        }
+    	StringBuilder sb = new StringBuilder(length);
+    	for (int i = 0; i < length; i++) {
+    		sb.append('*');
+    	}
+    	return sb.toString();
+
     }
 }
