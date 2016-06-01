@@ -54,6 +54,7 @@ public class ConfirmDeleteFrame extends JFrame implements ActionListener{
 			Logger.info("Deleting row " + row);
 			man.deleteRow(row);
 		}
+		man.enableMainFrame();
 		this.dispose();
 	}
 }

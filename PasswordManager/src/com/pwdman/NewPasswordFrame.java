@@ -24,7 +24,7 @@ public class NewPasswordFrame extends JFrame implements ActionListener{
 		man = m;
 		this.setTitle("Set an Admin Password");
 		this.setSize(300, 200);
-		
+		this.setResizable(false);
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		BoxLayout box = new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS);
 		this.setLayout(box);

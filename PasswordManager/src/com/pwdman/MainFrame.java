@@ -54,10 +54,6 @@ public class MainFrame extends JFrame implements TableModelListener, ActionListe
 		addItem.addActionListener(this);
 		menu.add(addItem);
 		
-		changeItem = new JMenuItem("Change Admin Password");
-		changeItem.addActionListener(this);
-		menu.add(changeItem);
-		
 		menuBar.add(menu);
 		this.setJMenuBar(menuBar);
 		dm = new DefaultTableModel(0,4);
@@ -66,6 +62,9 @@ public class MainFrame extends JFrame implements TableModelListener, ActionListe
 		for(int i = 0; i < NUMCOLS; i++){
 			TableColumn col = table.getColumnModel().getColumn(i);
 			col.setHeaderValue(headers[i]);
+			if(i==2){
+				col.setCellRenderer(new PasswordCellRenderer());
+			}
 			if(i==3){ //Delete button column
 				col.setCellRenderer( new ButtonRenderer() );
 				col.setCellEditor(new ButtonEditor(new JCheckBox()));
@@ -74,7 +73,7 @@ public class MainFrame extends JFrame implements TableModelListener, ActionListe
 		}
 		table.putClientProperty("terminateEditOnFocusLost", true);
 		table.getModel().addTableModelListener(this);
-		
+		table.setAutoCreateRowSorter(true);
 		
 		scrollPane = new JScrollPane(table);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
