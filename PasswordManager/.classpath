@@ -5,5 +5,7 @@
 	<classpathentry exported="true" kind="lib" path="C:/Users/BroDudeIII/Documents/Coding/Java/Libraries/commons-io-2.5/commons-io-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="C:/Users/BroDudeIII/Documents/Coding/Java/Libraries/commons-io-2.5/commons-io-2.5-javadoc.jar"/>
 	<classpathentry exported="true" kind="lib" path="C:/Users/BroDudeIII/Documents/Coding/Java/Libraries/jbcrypt-0.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/BroDudeIII/Documents/Coding/Java/Libraries/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/BroDudeIII/Documents/Coding/Java/Libraries/junit-4.12.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

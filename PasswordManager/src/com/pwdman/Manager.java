@@ -22,6 +22,31 @@ public class Manager {
 
 	private IO accountsIO, passwordIO;
 	
+	public Manager(String config, String data){
+		//Start off by initializing two instances of the IO class
+				// The first will store information on the accounts, the second will store the hashed password
+				accountsIO = new IO(data);
+				passwordIO = new IO(config);
+				//Check to see if a file exists which contains the hashed password.
+				//This will see if the program has been run before.
+				if(!passwordIO.fileExists()){
+					//If the file doesn't exist, load the NewPasswordFrame. This will allow us
+					//to create a save (hashed) an admin password
+					Logger.debug("No configuration file found.");
+					new NewPasswordFrame(this);
+				}
+				else{
+					//If the file does exist, load the hashed password
+					//Initialize a startframe so that we can have the user enter a password to see
+					//if it matches the admin password
+					Logger.debug("Configuration file found");
+					pass = passwordIO.readFromFile();
+					new StartFrame(this);
+				}
+				//Create a MainFrame, won't be shown until a password is set or verified
+				mf = new MainFrame(this);
+	}
+	
 	public Manager(){
 		//Start off by initializing two instances of the IO class
 		// The first will store information on the accounts, the second will store the hashed password
